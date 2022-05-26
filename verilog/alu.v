@@ -110,7 +110,7 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			/*
 			 *	SRA (the fields also matches the other SRA variants)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRA:	ALUOut = A >>> B[4:0];
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRA:	ALUOut = $signed(A) >>> B[4:0];
 
 			/*
 			 *	SLL (the fields also match the other SLL variants)
@@ -148,8 +148,8 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 		case (ALUctl[6:4])
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BEQ:	Branch_Enable = (ALUOut == 0);
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BNE:	Branch_Enable = !(ALUOut == 0);
-			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLT:	Branch_Enable = ($signed(A) < $signed(B));
-			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGE:	Branch_Enable = ($signed(A) >= $signed(B));
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLT:	Branch_Enable = (ALUOut == 1);
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGE:	Branch_Enable = (ALUOut == 0);
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLTU:	Branch_Enable = ($unsigned(A) < $unsigned(B));
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGEU:	Branch_Enable = ($unsigned(A) >= $unsigned(B));
 
