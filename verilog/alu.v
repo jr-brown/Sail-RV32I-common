@@ -76,9 +76,9 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 	end
 
 	wire adder_input_carry;
-	assign adder_input_carry = (ALUctl[3:0] == kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SUB);
+	assign adder_input_carry = (ALUctl[3:0] == `kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SUB);
 	wire [31:0] adder_input_b;
-	assign adder_input_b = B ^ 32{adder_input_carry};
+	assign adder_input_b = B ^ {32{adder_input_carry}};
 	wire [31:0] adder_output;
 	assign adder_output = ({A, 1'b1} + {adder_input_b, adder_input_carry}) >> 1;
 
