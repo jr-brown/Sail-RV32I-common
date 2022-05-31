@@ -87,6 +87,50 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 	wire [31:0] bitwise_or;
 	assign bitwise_or = A | B;
 
+	// Shift right
+	reg [31:0] shift_right_0;
+	reg [31:0] shift_right_1;
+	reg [31:0] shift_right_2;
+	reg [31:0] shift_right_3;
+	reg [31:0] shift_right_4;
+	wire shift_right_arithmetic;
+	assign shift_right_arithmetic = (ALUctl[3:0] == `kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRA);
+
+	// Bitwise shift right (logical and arithmetic)
+	always @(*) begin
+
+		if (B[4] == 1) begin
+			shift_right_0 = A >> 16;
+			if (shift_right_arithmetic) shift_right_0[31:16] = {16{shift_right_0[15]}};
+		end
+		else shift_right_0 = A;
+
+		if (B[3] == 1) begin
+			shift_right_1 = shift_right_0 >> 8;
+			if (shift_right_arithmetic) shift_right_1[31:24] = {8{shift_right_1[23]}};
+		end
+		else shift_right_1 = shift_right_0;
+
+		if (B[2] == 1) begin
+			shift_right_2 = shift_right_1 >> 4;
+			if (shift_right_arithmetic) shift_right_2[31:28] = {4{shift_right_2[27]}};
+		end
+		else shift_right_2 = shift_right_1;
+
+		if (B[1] == 1) begin
+			shift_right_3 = shift_right_2 >> 2;
+			if (shift_right_arithmetic) shift_right_3[31:30] = {2{shift_right_3[29]}};
+		end
+		else shift_right_3 = shift_right_2;
+
+		if (B[0] == 1) begin
+			shift_right_4 = shift_right_3 >> 1;
+			if (shift_right_arithmetic) shift_right_4[31] = shift_right_4[30];
+		end
+		else shift_right_4 = shift_right_3;
+
+	end
+
 	always @(ALUctl, A, B, adder_output) begin
 		case (ALUctl[3:0])
 			/*
@@ -117,12 +161,12 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			/*
 			 *	SRL (the fields also matches the other SRL variants)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRL:	ALUOut = A >> B[4:0];
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRL:	ALUOut = shift_right_4;
 
 			/*
 			 *	SRA (the fields also matches the other SRA variants)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRA:	ALUOut = $signed(A) >>> B[4:0];
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SRA:	ALUOut = shift_right_4;
 
 			/*
 			 *	SLL (the fields also match the other SLL variants)
