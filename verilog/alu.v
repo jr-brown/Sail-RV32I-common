@@ -75,12 +75,17 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 		Branch_Enable = 1'b0;
 	end
 
+	// Adder module for ADD and SUB
 	wire adder_input_carry;
 	assign adder_input_carry = (ALUctl[3:0] == `kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SUB);
 	wire [31:0] adder_input_b;
 	assign adder_input_b = B ^ {32{adder_input_carry}};
 	wire [31:0] adder_output;
 	assign adder_output = ({A, 1'b1} + {adder_input_b, adder_input_carry}) >> 1;
+
+	// Bitwise OR
+	wire [31:0] bitwise_or;
+	assign bitwise_or = A | B;
 
 	always @(ALUctl, A, B, adder_output) begin
 		case (ALUctl[3:0])
@@ -92,21 +97,17 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			/*
 			 *	OR (the fields also match ORI)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_OR:	ALUOut = A | B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_OR:	ALUOut = bitwise_or;
 
 			/*
 			 *	ADD (the fields also match AUIPC, all loads, all stores, and ADDI)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_ADD: begin
-				ALUOut = adder_output;
-			end
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_ADD:	ALUOut = adder_output;
 
 			/*
 			 *	SUBTRACT (the fields also matches all branches)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SUB: begin
-				ALUOut = adder_output;
-			end
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SUB:	ALUOut = adder_output;
 
 			/*
 			 *	SLT (the fields also matches all the other SLT variants)
@@ -141,7 +142,7 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			/*
 			 *	CSRRS only
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_CSRRS:	ALUOut = A | B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_CSRRS:	ALUOut = bitwise_or;
 
 			/*
 			 *	CSRRC only
